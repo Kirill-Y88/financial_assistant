@@ -33,7 +33,10 @@ public class Company {
 
     }
 
-
-
-
+    public Company(Long id, Long em, String name, String code) {
+        this.id = id;
+        this.em = em;
+        this.name = name;
+        this.code = code;
+    }
 }

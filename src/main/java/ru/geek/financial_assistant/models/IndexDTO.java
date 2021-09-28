@@ -37,7 +37,7 @@ public class IndexDTO {
     }
 
     public Index convertToIndex(){
-        Index index = new Index(id,companyDTO.convertToCompany(),per,data,time,priceOpen,priceHigh,priceLow,priceClose,vol);
+        Index index = new Index(companyDTO.convertToCompany(),per,data,time,priceOpen,priceHigh,priceLow,priceClose,vol);
         return index;
     }
 

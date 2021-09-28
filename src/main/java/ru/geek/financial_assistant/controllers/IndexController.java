@@ -26,5 +26,15 @@ public class IndexController {
         return indexService.findAll();
     }
 
+    @GetMapping("/getIndices")
+    public void getIndices (){
+        indexService.getIndices();
+    }
+
+    @GetMapping("/create")
+    public void create (){
+            indexService.create();
+    }
+
 
 }

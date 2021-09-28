@@ -26,4 +26,10 @@ public class CompanyController {
         return companyService.findAll();
     }
 
+
+    //метод для единоразовой загрузки полного перечня компаний, которые торгуются на московской бирже
+    @GetMapping("/loadCompanies")
+    public void loadCompanies(){
+        companyService.loadCompanies();
+    }
 }

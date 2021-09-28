@@ -49,8 +49,8 @@ public class Index {
 
     }
 
-    public Index(Long id, Company company, Long per, LocalDate data, LocalTime time, Float priceOpen, Float priceHigh, Float priceLow, Float priceClose, Long vol) {
-        this.id = id;
+    public Index(Company company, Long per, LocalDate data, LocalTime time, Float priceOpen, Float priceHigh, Float priceLow, Float priceClose, Long vol) {
+
         this.company = company;
         this.per = per;
         this.data = data;
