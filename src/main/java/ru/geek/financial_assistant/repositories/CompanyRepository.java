@@ -6,6 +6,6 @@ import ru.geek.financial_assistant.models.Company;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
-
+       Company findCompanyByName(String name);
 
 }

@@ -11,7 +11,7 @@ public class IndexDTO {
 
     private Long id;
     private CompanyDTO companyDTO;
-    private Long per;
+    private String per;
     private LocalDate data;
     private LocalTime time;
     private Float priceOpen;

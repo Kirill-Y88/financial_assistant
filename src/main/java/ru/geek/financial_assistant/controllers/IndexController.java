@@ -1,9 +1,7 @@
 package ru.geek.financial_assistant.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.geek.financial_assistant.models.IndexDTO;
 import ru.geek.financial_assistant.services.IndexService;
 
@@ -34,6 +32,21 @@ public class IndexController {
     @GetMapping("/create")
     public void create (){
             indexService.create();
+    }
+
+    @PostMapping("/getIndicesForCompany")
+    public void getIndicesForCompany(@RequestParam String name,
+                                     @RequestParam String dateStart,
+                                     @RequestParam String dateFinish){
+        System.out.println("name = " + name + " dstart = " + dateStart + " dfinish = " + dateFinish);
+        indexService.getIndicesForCompany(name,dateStart,dateFinish);
+    }
+
+    @GetMapping("/getIndicesForCompany/{name}/{dateStart}/{dateFinish}")
+    public void getIndicesForCompany2(@PathVariable String name,
+                                      @PathVariable String dateStart,
+                                      @PathVariable String dateFinish){
+        indexService.getIndicesForCompany(name,dateStart,dateFinish);
     }
 
 

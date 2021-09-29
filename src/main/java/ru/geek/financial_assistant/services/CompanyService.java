@@ -28,7 +28,9 @@ public class CompanyService {
          return    (companyRepository.findAll().stream().map(CompanyDTO::new)).collect(Collectors.toList());
     }
 
-
+    public Company findCompanyByName(String name){
+       return companyRepository.findCompanyByName(name);
+    }
 
     public void loadCompanies(){
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader("src/main/resources/download/draft2.csv"))) {

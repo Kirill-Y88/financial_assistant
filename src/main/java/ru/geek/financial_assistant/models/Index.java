@@ -22,7 +22,7 @@ public class Index {
     private Company company;
 
     @Column(name = "per")
-    private Long per;
+    private String per;
 
     @Column(name = "date")
     private LocalDate data;
@@ -49,7 +49,7 @@ public class Index {
 
     }
 
-    public Index(Company company, Long per, LocalDate data, LocalTime time, Float priceOpen, Float priceHigh, Float priceLow, Float priceClose, Long vol) {
+    public Index(Company company, String per, LocalDate data, LocalTime time, Float priceOpen, Float priceHigh, Float priceLow, Float priceClose, Long vol) {
 
         this.company = company;
         this.per = per;

@@ -19,6 +19,7 @@ public  class GetRequestFinam {
     sep2 — параметр разделитель разрядов (1 — нет, 2 — точка (.), 3 — запятая (,), 4 — пробел ( ), 5 — кавычка ('))
     datf — Перечень получаемых данных (#1 — TICKER, PER, DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL; #2 — TICKER, PER, DATE, TIME, OPEN, HIGH, LOW, CLOSE; #3 — TICKER, PER, DATE, TIME, CLOSE, VOL; #4 — TICKER, PER, DATE, TIME, CLOSE; #5 — DATE, TIME, OPEN, HIGH, LOW, CLOSE, VOL; #6 — DATE, TIME, LAST, VOL, ID, OPER).
     at — добавлять заголовок в файл (0 — нет, 1 — да)
+    p - периодичность цен, 5 - 15 мин, 6 - 30 мин, 7 - 1 час, 8 - 1день, 9 - 1неделя
     */
 
     private int dtf = 1;
@@ -28,6 +29,10 @@ public  class GetRequestFinam {
     private int sep2 = 1;
     private int datf = 1;
     private int at = 1;
+    private int p = 8;
+
+    private int market = 1;
+    private String fileFormat = "csv";
 
     private File download = null;
 
@@ -41,7 +46,7 @@ public  class GetRequestFinam {
 
     //*** int market, long em, String code, - параметры, значения которых нужно вытащить с сайта для различных компаний
 
-    public boolean downloadDataFromSite(int market, long em, String code, int p, LocalDate dateBegin, LocalDate dateEnd, String fileFormat) {
+    public boolean downloadDataFromSite(long em, String code, LocalDate dateBegin, LocalDate dateEnd) {
        int[] dateBeginA = new int [] { dateBegin.getYear(), dateBegin.getMonth().getValue(), dateBegin.getDayOfMonth() };
        int[] dateEndA = new int[] { dateEnd.getYear(), dateEnd.getMonth().getValue(), dateEnd.getDayOfMonth() } ;
 
@@ -92,6 +97,8 @@ public  class GetRequestFinam {
         }
     }
 
+
+
     public void deleteFile(){
         try {
             Thread.sleep(5000);
@@ -139,8 +146,7 @@ public  class GetRequestFinam {
         }
     }
 
-
-
-
-
+    public File getDownload() {
+        return download;
+    }
 }
