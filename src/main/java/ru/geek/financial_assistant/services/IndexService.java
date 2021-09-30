@@ -2,7 +2,10 @@ package ru.geek.financial_assistant.services;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
+import ru.geek.financial_assistant.configs.Config;
 import ru.geek.financial_assistant.library.GetRequestFinam;
 import ru.geek.financial_assistant.models.Company;
 import ru.geek.financial_assistant.models.Index;
@@ -22,10 +25,15 @@ public class IndexService {
     private GetRequestFinam getRequestFinam;
     private CompanyService companyService;
 
+    ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
 
+    /*public IndexService() {
+        getRequestFinam = new GetRequestFinam();
+    }*/
 
     public IndexService() {
-        getRequestFinam = new GetRequestFinam();
+        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        getRequestFinam = context.getBean(GetRequestFinam.class);
     }
 
     @Autowired
