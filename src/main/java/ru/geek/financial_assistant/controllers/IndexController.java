@@ -40,7 +40,7 @@ public class IndexController {
 
     @GetMapping("/create")
     public void create (){
-            indexService.create();
+        //    indexService.create();
     }
 
     @PostMapping("/downloadIndicesForCompany")

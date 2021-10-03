@@ -12,12 +12,15 @@ import ru.geek.financial_assistant.models.Index;
 import ru.geek.financial_assistant.models.IndexDTO;
 import ru.geek.financial_assistant.repositories.IndexRepository;
 
+import javax.persistence.NoResultException;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +64,7 @@ public class IndexService {
     }
 
     public void downloadIndicesForCompany(String name, String dateFrom, String dateTo){
-        System.out.println("name = " + name + " dfromyear = " + Integer.parseInt(dateFrom.substring(0,4)) + " dfrommount = " + Integer.parseInt(dateFrom.substring(4,5)) + " dfromday = " + Integer.parseInt(dateFrom.substring(6,7)) );
+        System.out.println("name = " + name + " dfromyear = " + Integer.parseInt(dateFrom.substring(0,4)) + " dfrommount = " + Integer.parseInt(dateFrom.substring(4,6)) + " dfromday = " + Integer.parseInt(dateFrom.substring(6)) );
 
             LocalDate dateStart = LocalDate.of(Integer.parseInt(dateFrom.substring(0,4)),
                     Integer.parseInt(dateFrom.substring(4,6)),
@@ -72,57 +75,130 @@ public class IndexService {
 
             Company company = companyService.findCompanyByName(name);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    List<LocalDate[]> localDatesArray = getListOfPeriods(dateStart,dateFinish);
+            //крайние даты хранимых индексов
+        LocalDate dateLast = null;
+        LocalDate dateFirst = null;
+        try {
+            dateLast = indexRepository.findLastIndexByCompany(company).getDate();
+        }catch (NoResultException e){
+            e.printStackTrace();
+        }
+        try {
+            dateFirst = indexRepository.findFirstIndexByCompany(company).getDate();
+        }catch (NoResultException e){
+            e.printStackTrace();
+        }
 
-                    for (LocalDate[] lDA: localDatesArray ) {
-                        downloadFromSite(company, lDA[0], lDA[1]);
-                    }
+        //тестовые логи
+        try {
+            System.out.println(" разница начальных дат = " + dateFirst.until(dateStart,ChronoUnit.DAYS)
+                    + "  рфзница конечных дат =" + dateLast.until(dateFinish,ChronoUnit.DAYS));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
-                }
-            }).start();
+
+            //если данные еще не были загружены
+            if(dateLast == null || dateFirst == null){
+                startNewThreadForDownloadFromSite(company, dateStart, dateFinish);
+                System.out.println("если данные еще не были загружены");
+                return;
+            }
+
+            //если необходимо добавить только период до существующих данных в БД
+            if(dateFirst.until(dateStart,ChronoUnit.DAYS)<0 && dateLast.until(dateFinish,ChronoUnit.DAYS)<=0){
+                System.out.println("dataFirst = " + dateFirst + " data start = " + dateStart +
+                        " dataLast = " + dateLast + " dataFinish = " + dateFinish);
+
+                LocalDate finalDateFirst = dateFirst;
+                startNewThreadForDownloadFromSite(company,dateStart,finalDateFirst);
+
+                System.out.println("если необходимо добавить только период до существующих данных в БД");
+                return;
+            }
+
+            //если необходимо добавить только период после существующих данных в БД
+            if(dateFirst.until(dateStart,ChronoUnit.DAYS)>=0 && dateLast.until(dateFinish,ChronoUnit.DAYS)>0){
+                System.out.println("dataFirst = " + dateFirst + " data start = " + dateStart +
+                        " dataLast = " + dateLast + " dataFinish = " + dateFinish);
+
+                LocalDate finalDateLast = dateLast;
+                startNewThreadForDownloadFromSite(company,finalDateLast, dateFinish);
+
+                System.out.println("если необходимо добавить только период после существующих данных в БД");
+                return;
+            }
+            //если необходимо добавить периоды до и после существующих данных в БД
+            if(dateFirst.until(dateStart,ChronoUnit.DAYS)<0 && dateLast.until(dateFinish,ChronoUnit.DAYS)>0){
+
+                System.out.println("dataFirst = " + dateFirst + " data start = " + dateStart +
+                        " dataLast = " + dateLast + " dataFinish = " + dateFinish);
+
+                LocalDate finalDateFirst1 = dateFirst;
+                startNewThreadForDownloadFromSite(company,dateStart, finalDateFirst1);
+
+                LocalDate finalDateLast1 = dateLast;
+                startNewThreadForDownloadFromSite(company,finalDateLast1,dateFinish);
+
+                System.out.println("если необходимо добавить периоды до и после существующих данных в БД");
+                return;
+            }
+
+            //если запрошенный период уже хранится в БД
+            if(dateFirst.until(dateStart,ChronoUnit.DAYS)>=0 && dateLast.until(dateFinish,ChronoUnit.DAYS)<=0){
+                System.out.println("Данные уже загружены ранее");
+                return;
+            }
+
     }
 
     public void addIndex (Index index){
         indexRepository.save(index);
     }
 
-    private void downloadFromSite(Company company, LocalDate dateStart, LocalDate dateFinish){
+    private synchronized void  downloadFromSite(Company company, LocalDate dateStart, LocalDate dateFinish){
+            getRequestFinam.downloadDataFromSite(company.getEm(), company.getCode(), dateStart, dateFinish);
+            getRequestFinam.readDateFromFile();
 
+            File download = getRequestFinam.getDownload();
+            String row;
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(download.getPath()));
+                bufferedReader.readLine();
+                while ((row = bufferedReader.readLine()) != null) {
+                    String[] data = row.split(",");
+                    for (String s : data) {
+                        System.out.print(s + " // ");
+                    }
+                    addIndex(new Index(company,
+                            data[1],
+                            LocalDate.of(Integer.parseInt(data[2].substring(0, 4)), Integer.parseInt(data[2].substring(4, 6)), Integer.parseInt(data[2].substring(6))),
+                            LocalTime.of(Integer.parseInt(data[3].substring(0, 2)), Integer.parseInt(data[3].substring(2, 4)), Integer.parseInt(data[3].substring(4))),
+                            Float.parseFloat(data[4]),
+                            Float.parseFloat(data[5]),
+                            Float.parseFloat(data[6]),
+                            Float.parseFloat(data[7]),
+                            Long.parseLong(data[8])));
 
-
-        getRequestFinam.downloadDataFromSite(company.getEm(), company.getCode(), dateStart,dateFinish);
-        getRequestFinam.readDateFromFile();
-
-        File download = getRequestFinam.getDownload();
-        String row;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(download.getPath()));
-            bufferedReader.readLine();
-            while ( (row = bufferedReader.readLine())!=null){
-                String[] data = row.split(",");
-                for (String s: data    ) {
-                    System.out.print(s + " // ");
+                    System.out.println("add");
                 }
-                addIndex(new Index(company,
-                        data[1],
-                        LocalDate.of(Integer.parseInt(data[2].substring(0,4)) , Integer.parseInt(data[2].substring(4,6)), Integer.parseInt(data[2].substring(6)) ),
-                        LocalTime.of(Integer.parseInt(data[3].substring(0,2)) , Integer.parseInt(data[3].substring(2,4)), Integer.parseInt(data[3].substring(4)) ),
-                        Float.parseFloat(data[4]),
-                        Float.parseFloat(data[5]),
-                        Float.parseFloat(data[6]),
-                        Float.parseFloat(data[7]),
-                        Long.parseLong(data[8])));
-
-                System.out.println("add");
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        getRequestFinam.deleteFile();
+            getRequestFinam.deleteFile();
+    }
+
+    private synchronized void startNewThreadForDownloadFromSite(Company company, LocalDate dateStart, LocalDate dateFinish){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<LocalDate[]> localDatesArray = getListOfPeriods(dateStart,dateFinish);
+                for (LocalDate[] lDA: localDatesArray ) {
+                    downloadFromSite(company, lDA[0], lDA[1]);
+                }
+            }
+        }).start();
     }
 
     //в связи с тем, что с сайта за раз не дает загрузить данные за период более 5 лет - запрашиваемый период необходимо разбить на более мелкие
@@ -150,12 +226,10 @@ public class IndexService {
     }
 
     public IndexDTO getLastIndex(Company company){
-        Long company_id = company.getId();
         return new IndexDTO(indexRepository.findLastIndexByCompany(company));
     }
 
     public IndexDTO getFirstIndex(Company company){
-        Long company_id = company.getId();
         return new IndexDTO(indexRepository.findFirstIndexByCompany(company));
     }
 
@@ -165,10 +239,5 @@ public class IndexService {
     }
 
 
-            // к удалению
-    public void create (){
-        indexRepository.save(new Index(new Company(1l,15554l,"КАМАЗ","KMAZ"),"60",LocalDate.of(2021,1,5), LocalTime.of(14,00,00),72.4f,72.5f,72.9f,70f,1955l));
-
-    }
 
 }

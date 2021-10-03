@@ -10,6 +10,7 @@ import ru.geek.financial_assistant.models.Index;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import java.util.List;
 
 @Repository
@@ -21,7 +22,7 @@ public interface IndexRepository extends JpaRepository<Index,Long> {
 
     Index findFirstByCompany(Company company);
 
-    default Index findLastIndexByCompany(Company company){
+    default Index findLastIndexByCompany(Company company) throws NoResultException {
         String query = String.format("SELECT * FROM indices where id_company = %d ORDER BY date DESC LIMIT 1", company.getId());
         EntityManagerFactory factory = new Configuration()
                 .configure("hibernate.cfg.xml")
@@ -33,7 +34,7 @@ public interface IndexRepository extends JpaRepository<Index,Long> {
         return index;
     }
 
-    default Index findFirstIndexByCompany(Company company){
+    default Index findFirstIndexByCompany(Company company) throws NoResultException{
         String query = String.format("SELECT * FROM indices where id_company = %d ORDER BY date ASC LIMIT 1", company.getId());
         EntityManagerFactory factory = new Configuration()
                 .configure("hibernate.cfg.xml")
