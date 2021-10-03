@@ -9,6 +9,7 @@ import ru.geek.financial_assistant.models.CompanyDTO;
 import ru.geek.financial_assistant.services.CompanyService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/companies")
@@ -32,4 +33,12 @@ public class CompanyController {
     public void loadCompanies(){
         companyService.loadCompanies();
     }
+
+    @GetMapping("/getCompaniesNames")
+    public List<String>getCompaniesNames(){
+        return companyService.findAll().stream().map(CompanyDTO::getName).collect(Collectors.toList());
+    }
+
 }
+
+

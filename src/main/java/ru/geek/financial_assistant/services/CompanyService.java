@@ -47,9 +47,8 @@ public class CompanyService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
+
 
 
 

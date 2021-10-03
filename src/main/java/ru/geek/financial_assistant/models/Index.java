@@ -25,7 +25,7 @@ public class Index {
     private String per;
 
     @Column(name = "date")
-    private LocalDate data;
+    private LocalDate date;
 
     @Column(name = "time")
     private LocalTime time;
@@ -49,11 +49,11 @@ public class Index {
 
     }
 
-    public Index(Company company, String per, LocalDate data, LocalTime time, Float priceOpen, Float priceHigh, Float priceLow, Float priceClose, Long vol) {
+    public Index(Company company, String per, LocalDate date, LocalTime time, Float priceOpen, Float priceHigh, Float priceLow, Float priceClose, Long vol) {
 
         this.company = company;
         this.per = per;
-        this.data = data;
+        this.date = date;
         this.time = time;
         this.priceOpen = priceOpen;
         this.priceHigh = priceHigh;
