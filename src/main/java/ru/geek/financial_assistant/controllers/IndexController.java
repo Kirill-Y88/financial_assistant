@@ -61,14 +61,12 @@ public class IndexController {
     @PostMapping("/getLastIndex")
     public IndexDTO getLastIndex(@RequestParam String name){
         Company company = companyService.findCompanyByName(name);
-       // Company company = new Company(371l,15544l,"КАМАЗ","KMAZ");
        return indexService.getLastIndex(company);
     }
 
     @PostMapping("/getFirstIndex")
     public IndexDTO getFirstIndex(@RequestParam String name){
         Company company = companyService.findCompanyByName(name);
-        // Company company = new Company(371l,15544l,"КАМАЗ","KMAZ");
         return indexService.getFirstIndex(company);
     }
 

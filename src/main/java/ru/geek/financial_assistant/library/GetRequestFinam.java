@@ -30,7 +30,7 @@ public  class GetRequestFinam {
     private int sep2 = 1;
     private int datf = 1;
     private int at = 1;
-    private int p = 8;
+    private int p = 7;
 
     private int market = 1;
     private String fileFormat = "csv";
