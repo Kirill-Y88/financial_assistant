@@ -239,7 +239,19 @@ public class IndexService {
     }
 
     public List<IndexDTO> getAllIndicesByCompanyForLastPeriod (Company company, LocalDate finalDate, int numberOfDay){
-    return indexRepository.findIndicesByCompanyAndDate(company, finalDate.minusDays(numberOfDay) ,finalDate).stream().map(IndexDTO::new).collect(Collectors.toList());
+    return indexRepository.findIndicesByCompanyAndDate(company, finalDate.minusDays(numberOfDay) ,finalDate).stream().filter(i -> i != null).map(IndexDTO::new).collect(Collectors.toList());
+    }
+
+    public Index findIndexByCompanyAndDate (Company company, LocalDate dateFinish ){
+        return indexRepository.findIndexByCompanyAndDate(company,dateFinish);
+    }
+
+    List<Index> findIndicesByCompanyAndDateForCloseTime(Company company, LocalDate dateStart, LocalDate dateFinish){
+        return indexRepository.findIndicesByCompanyAndDateForCloseTime(company, dateStart, dateFinish);
+    }
+
+    public Index findIndicesByCompanyAndDateAndTime(Company company, LocalDate localDate, LocalTime localTime){
+        return indexRepository.findIndicesByCompanyAndDateAndTime(company, localDate, localTime);
     }
 
 

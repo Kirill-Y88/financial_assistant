@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.geek.financial_assistant.models.IndexDTO;
+import ru.geek.financial_assistant.models.Indicator;
+import ru.geek.financial_assistant.models.IndicatorDTO;
 import ru.geek.financial_assistant.services.FinancialAlgorithmsService;
 
 import java.util.List;
@@ -36,6 +38,43 @@ public class FinancialAlgorithmsController {
                          @RequestParam String dateFinish,
                          @RequestParam int numberOfDay){
         return financialAlgorithmsService.getRSI(nameCompany, dateFinish, numberOfDay);
+    }
+
+    @PostMapping("/getEMAForPeriod")
+    public float getEMA (@RequestParam String nameCompany,
+                         @RequestParam String dateFinish,
+                         @RequestParam int numberOfDay){
+        return financialAlgorithmsService.getEMA(nameCompany, dateFinish, numberOfDay, 0.75f);
+    }
+
+    @PostMapping("/saveIndicator")  //'к' - коэффициент сглаживания, чем больше 'к' - тем более влияние последних индексов
+    public IndicatorDTO saveIndicator (@RequestParam String nameCompany,
+                                       @RequestParam String dateFinish,
+                                       @RequestParam float k){
+        return financialAlgorithmsService.saveIndicator(nameCompany,dateFinish, 0.75f);
+    }
+
+    @PostMapping("/addIndicatorMACDG")  //'к' - коэффициент сглаживания, чем больше 'к' - тем более влияние последних индексов
+    public IndicatorDTO addToIndicatorMACDG (@RequestParam String nameCompany,
+                                             @RequestParam String dateFinish,
+                                             @RequestParam float k){
+        return financialAlgorithmsService.addToIndicatorMACDG(nameCompany, dateFinish, 0.75f );
+    }
+
+    @PostMapping("/saveIndicatorForPeriod")
+    public List<IndicatorDTO> saveIndicatorsForPeriod (@RequestParam String nameCompany,
+                                                 @RequestParam String dateStart,
+                                                 @RequestParam String dateFinish,
+                                                 @RequestParam float k){
+        return financialAlgorithmsService.saveIndicatorForPeriod(nameCompany,dateStart,dateFinish,k);
+    }
+
+    @PostMapping("/addToIndicatorMACDGForPeriod")
+    public List<IndicatorDTO> addToIndicatorMACDGForPeriod (@RequestParam String nameCompany,
+                                                            @RequestParam String dateStart,
+                                                            @RequestParam String dateFinish,
+                                                            @RequestParam float k){
+        return financialAlgorithmsService.addToIndicatorMACDGForPeriod(nameCompany,dateStart,dateFinish,k);
     }
 
 

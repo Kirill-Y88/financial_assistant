@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -22,6 +23,7 @@ public interface IndexRepository extends JpaRepository<Index,Long> {
 
 
     Index findFirstByCompany(Company company);
+    Index findIndicesByCompanyAndDateAndTime(Company company, LocalDate localDate, LocalTime localTime);
 
     default Index findLastIndexByCompany(Company company) throws NoResultException {
         String query = String.format("SELECT * FROM indices where id_company = %d ORDER BY date DESC LIMIT 1", company.getId());
@@ -70,6 +72,43 @@ public interface IndexRepository extends JpaRepository<Index,Long> {
       em.getTransaction().commit();
       return indices;
   }
+
+
+  //получение значения индекса закрытия
+  default Index findIndexByCompanyAndDate (Company company, LocalDate dateFinish ) {
+
+      String query = String.format("SELECT * FROM indices where id_company = %d AND date = %s AND time = 190000",
+              company.getId(),dateFinish.toString().replace("-",""));
+      EntityManagerFactory factory = new Configuration()
+              .configure("hibernate.cfg.xml")
+              .buildSessionFactory();
+      EntityManager em = factory.createEntityManager();
+      em.getTransaction().begin();
+      Index index = null;
+      try{
+      index = (Index) em.createNativeQuery(query,Index.class).getSingleResult();
+      }catch (Exception e){
+          e.printStackTrace();
+      }
+      em.getTransaction().commit();
+      return index;
+  }
+
+    default List<Index> findIndicesByCompanyAndDateForCloseTime(Company company, LocalDate dateStart, LocalDate dateFinish){
+
+        String query = String.format("SELECT * FROM indices where id_company = %d AND date between %s AND %s AND time = 190000",
+                company.getId(),dateStart.toString().replace("-",""), dateFinish.toString().replace("-",""));
+
+        EntityManagerFactory factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .buildSessionFactory();
+        EntityManager em = factory.createEntityManager();
+        em.getTransaction().begin();
+        List<Index> indices = em.createNativeQuery(query,Index.class).getResultList();
+        em.getTransaction().commit();
+        return indices;
+    }
+
 
 
 

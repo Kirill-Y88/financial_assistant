@@ -22,10 +22,38 @@ public class FinancialAlgorithms {
             }
         }
 
-        System.out.println(" priceIncreaseAmount = " + priceIncreaseAmount);
-        System.out.println(" priceReductionAmount = " + priceReductionAmount);
+      //  System.out.println(" priceIncreaseAmount = " + priceIncreaseAmount);
+      //  System.out.println(" priceReductionAmount = " + priceReductionAmount);
     return 100*priceIncreaseAmount/(priceIncreaseAmount+priceReductionAmount);
     }
+
+    /*public float getMACD (List<IndexDTO> indexDTOList){
+
+
+
+
+
+    }*/
+
+    public float getEMA( float[] indexPriceClose, float k){
+        float EMA;
+
+        for (float f : indexPriceClose){
+          //  System.out.println("array f ="  + f);
+        }
+
+        EMA = k*indexPriceClose[0];
+        for (int i = 1; i < indexPriceClose.length; i++) {
+            EMA = k*indexPriceClose[i] + (1-k)*EMA;
+         //   System.out.println("EMA =" + EMA);
+        }
+        return EMA;
+    }
+
+
+
+
+    
 
 
 
