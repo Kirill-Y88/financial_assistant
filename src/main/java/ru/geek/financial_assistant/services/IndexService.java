@@ -236,6 +236,7 @@ public class IndexService {
 
     public List<IndexDTO> getAllIndicesByCompany (Company company){
         return indexRepository.getAllIndicesByCompany(company).stream().map(IndexDTO::new).collect(Collectors.toList());
+
     }
 
     public List<IndexDTO> getAllIndicesByCompanyForLastPeriod (Company company, LocalDate finalDate, int numberOfDay){
