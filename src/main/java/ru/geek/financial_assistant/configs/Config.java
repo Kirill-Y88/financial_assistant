@@ -13,6 +13,7 @@ public class Config {
         return new GetRequestFinam();
     }
 
+
     @Bean
     public FinancialAlgorithms getFinancialAlgorithms(){
         return new FinancialAlgorithms();
