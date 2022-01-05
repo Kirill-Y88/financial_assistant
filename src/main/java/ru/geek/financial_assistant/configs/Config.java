@@ -14,6 +14,7 @@ public class Config {
     }
 
 
+
     @Bean
     public FinancialAlgorithms getFinancialAlgorithms(){
         return new FinancialAlgorithms();
